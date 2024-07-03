@@ -12,13 +12,13 @@ service_region = "westeurope"  # Azure service region for the Speech service
 neural_voice_name = "en-US-AvaMultilingualNeural"  # Name of the neural voice to use
 
 # Azure OpenAI Service configuration
-aoai_base_url = "https://xxxxxxxxx.openai.azure.com/"  # Base URL for the Azure OpenAI Service
+aoai_base_url = "https://xxxxxxxx.openai.azure.com/"  # Base URL for the Azure OpenAI Service
 aoai_key = ""  # Subscription key for the Azure OpenAI Service
 aoai_version = "2024-05-01-preview"  # API version to use for the Azure OpenAI Service
 deployment_name = "gpt-4o"  # Name of the deployment for the Azure OpenAI Service
 
 # Azure Cognitive Search configuration
-ai_search_url = "https://xxxxxxxx.search.windows.net"  # Base URL for the Azure Cognitive Search service
+ai_search_url = "https://xxxxxx.search.windows.net"  # Base URL for the Azure Cognitive Search service
 ai_search_key = ""  # Subscription key for the Azure Cognitive Search service
 
 # Configuration for the Car Loan SOP (Standard Operating Procedure) Index

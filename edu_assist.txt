@@ -1,3 +1,7 @@
 Here are some questions that you can ask the Edu Assistant to get started:
-- What are the steps in Partnership firm formation?
+- What are the characteristics of not for profit organizations?
 - What is Chemical Kinetics?
+- Who conceived the idea of a rotating magnetic field
+- What are the characteristics of a series RLC Circuit?
+- What is Raoult's law?
+- complete the equation Zn + 2H+ ->
