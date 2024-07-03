@@ -1,0 +1,5 @@
+Here are some questions that you can ask the SOW Assistant to get started:
+- What is the total contract value in the SOW for Acme?
+- What are the payment terms in the SOW for Acme and SOW for Blue tech? Which one is higher?
+- Who are the signatories in the SOW for Tech pro?
+- What are the milestone dates in the SOW for Acme?
