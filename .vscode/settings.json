@@ -1,0 +1,14 @@
+{
+    "containerApps.deploymentConfigurations": [
+        {
+            "label": "audio-gen-ai-assistant",
+            "type": "AcrDockerBuildRequest",
+            "dockerfilePath": "Dockerfile",
+            "srcPath": ".",
+            "envPath": "",
+            "resourceGroup": "audio-gen-ai-app",
+            "containerApp": "audio-gen-ai-assistant",
+            "containerRegistry": "audiogenaiapp66a0b2"
+        }
+    ]
+}

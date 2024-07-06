@@ -1,25 +1,36 @@
 '''
-This file contains the implementation of an audio-based AI assistant using Azure OpenAI. 
-The assistant allows users to interact with it through text-based chat. 
+This file contains the implementation of an audio-based AI assistant using Azure Cognitive Services and OpenAI. 
+The assistant allows users to interact with it through speech recognition and text-based chat. It leverages Azure Cognitive Services for speech recognition and Azure Search for semantic search capabilities. It also uses OpenAI for generating responses to user queries.
 
 The main functionalities of the assistant include:
+- Speech recognition from microphone input
+- Text-to-speech conversion for assistant responses
 - Chat-based conversation with the assistant
 - Integration with different scenarios such as Car Loan Assistant, SOW Helper, and Edu Assistant
+
+# This can run only on local machine as it requires microphone input
 
 The code is organized into the following sections:
 1. Importing necessary libraries and modules
 2. Setting up environment variables and configurations
+3. Creating the speech recognizer and audio configuration
 4. Setting up the Streamlit user interface
 5. Handling user prompts and selecting the scenario
+6. Generating responses to user queries using Azure Cognitive Services and OpenAI
+7. Implementing speech recognition and text-to-speech functionalities
 8. Handling user interactions and displaying chat messages
 
 '''
 
 
+
+import azure.cognitiveservices.speech as speechsdk
 import streamlit as st
 import time
 from openai import AzureOpenAI
 import params
+import base64
+from azure.cognitiveservices.speech import AudioDataStream
 
 # Environment variables
 speech_key = params.speech_key
@@ -36,6 +47,17 @@ ai_search_key = params.ai_search_key
 # ai_semantic_config = params.ai_semantic_config
 # query_type = params.query_type
 
+speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
+audio_config = speechsdk.AudioConfig(use_default_microphone=True)
+
+# Create a speech recognizer with the given settings
+speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config, audio_config=audio_config)
+
+# Add FontAwesome CSS stylesheet
+st.markdown('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">', unsafe_allow_html=True)
+
+# Create a button with the microphone icon
+st.write('<style>.microphone-button { background-color: #007bff; color: white; border: none; border-radius: 5px; padding: 10px; }</style>', unsafe_allow_html=True)
 
 st.title(params.app_title)
 
@@ -46,6 +68,7 @@ if "messages" not in st.session_state:
         # system_prompt = file.read().replace('\n', '')
         system_prompt = file.read()
         st.session_state.messages.append({"role": "system", "content": system_prompt})
+        # st.text_area(label="System Prompt", value=system_prompt, height=500)
 
 with st.sidebar:
     st.text_area(label="System Prompt", value=st.session_state.messages[0]['content'], height=250)
@@ -140,6 +163,54 @@ def get_response_to_user_query(play_audio=False):
     st.session_state.messages.append(
         {"role": "assistant", "content": full_response}
     )
+    if play_audio:
+        text_to_speech(full_response)
+
+def speech_recognize_once_from_mic():
+    # Set up the speech config and audio config
+    st.write("Speak into your microphone.")
+    result = speech_recognizer.recognize_once_async().get()
+
+    # Check the result
+    if result.reason == speechsdk.ResultReason.RecognizedSpeech:
+        return f"{result.text}"
+    elif result.reason == speechsdk.ResultReason.NoMatch:
+        return "No speech could be recognized"
+    elif result.reason == speechsdk.ResultReason.Canceled:
+        cancellation_details = result.cancellation_details
+        return f"Speech Recognition canceled: {cancellation_details.reason}"
+    else:
+        return "Unknown error"
+
+def text_to_speech(text):
+    speech_config2 = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
+    # Set the voice name, refer to https://aka.ms/speech/voices/neural for full list.
+    speech_config2.speech_synthesis_voice_name = params.neural_voice_name
+
+    # Creates a speech synthesizer using the default speaker as audio output.
+    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config2)
+
+    # Synthesize the text to speech
+    result = speech_synthesizer.speak_text_async(text).get()
+    print('performing TTS for text', text)
+    
+    # Check the result
+    if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+        return "Text to speech conversion successful"
+    else:
+        return "Text to speech conversion failed"
+
+
+if st.button('🎙️', key='mic_button'):
+    recognition_result = speech_recognize_once_from_mic()
+    st.chat_input( recognition_result)
+    st.session_state.messages.append({"role": "user", "content": recognition_result})
+    with st.chat_message("user"):
+        st.markdown(recognition_result)
+    with st.chat_message("assistant"):
+        get_response_to_user_query(True)
+   # st.chat_message(recognition_result)
+
 
 if prompt := st.chat_input("Hello!!!"):
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -148,3 +219,8 @@ if prompt := st.chat_input("Hello!!!"):
 
     with st.chat_message("assistant"):
         get_response_to_user_query(False)
+
+
+
+
+
